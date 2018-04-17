@@ -1,9 +1,12 @@
 package com.mlsama.controller;
 
+import com.mlsama.pojo.Constant;
 import com.mlsama.pojo.TextMessage;
 import com.mlsama.utils.EncryptUtil;
+import com.mlsama.utils.MessageConvert;
 import com.mlsama.utils.MessageUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,13 +29,14 @@ import java.util.Map;
 @Slf4j
 @RequestMapping("/weixin_dev")
 public class WeiXinDev {
-    private final String token = "mlsama";
+    @Autowired
+    private MessageConvert messageConvert;
 
     @ResponseBody
     @GetMapping
     public String connectWX(String signature,String timestamp,String nonce,String echostr){
         log.info("接受到微信后台传来的数据:signature={}",signature);
-        String[] strings = {token,timestamp,nonce};
+        String[] strings = {Constant.TOKEN,timestamp,nonce};
         //字典排序
         Arrays.sort(strings);
         //三个参数字符串拼接成一个字符串进行sha1加密
@@ -62,25 +66,17 @@ public class WeiXinDev {
          */
         String toUserName = map.get("ToUserName");
         String fromUserName = map.get("FromUserName");
-        String createTime = map.get("CreateTime");
         String msgType = map.get("MsgType");
         String content = map.get("Content");
         String msgId = map.get("MsgId");
+        log.info("用户发来的消息是:类型是:{},内容为:{}",msgType,content);
         //判断是否是文本消息
-        if ("text".equals(msgType)){
-            log.info("用户发来的消息是:{}",content);
+        if (Constant.MSGTYPE_TEXT.equals(msgType)){
             //返回消息给用户
-            //创建文本消息对象
-            TextMessage textMessage = new TextMessage();
-            textMessage.setToUserName(fromUserName);
-            textMessage.setFromUserName(toUserName);
-            textMessage.setCreateTime(new Date().getTime());
-            textMessage.setMsgType(msgType);
-            textMessage.setMsgId(msgId);
-            textMessage.setContent("您发是消息是:"+content);
+            TextMessage textMessage = messageConvert.getTextMessage(toUserName, fromUserName, msgId, content);
             //转为xml
             String send = MessageUtil.object2Xml(textMessage);
-            log.info("返回的信息是:"+send);
+            log.info("返回的信息是:{}",send);
             //将信息写出
             PrintWriter out = response.getWriter();
             out.write(send);
