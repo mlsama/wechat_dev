@@ -71,7 +71,7 @@ public class WeiXinDev {
         //从request中获取用户发来的XML消息
         Map<String, String> map = MessageUtil.xml2Map(request);
         log.info("用户发来的消息是:类型是:{},内容为:{}",map.get("MsgType"),map.get("Content"));
-        //判断是否是文本消息
+        //文本消息
         if (Constant.MSGTYPE_TEXT.equals(map.get("MsgType"))){
             //返回消息给用户
             TextMessage textMessage = messageConvert.getTextMessage(map);
@@ -81,7 +81,14 @@ public class WeiXinDev {
             //将信息写出
             PrintWriter out = response.getWriter();
             out.write(send);
-        }else {
+         //图片信息
+        }else if (Constant.MSGTYPE_IMAGE.equals(map.get("MsgType"))){
+            log.info("图片链接是:{}",map.get("PicUrl"));
+        //语音信息
+        }else if (Constant.MSGTYPE_VOICE.equals(map.get("MsgType"))){
+
+        //视频信息
+        }else if (Constant.MSGTYPE_VIDEO.equals(map.get("MsgType"))){
 
         }
     }
