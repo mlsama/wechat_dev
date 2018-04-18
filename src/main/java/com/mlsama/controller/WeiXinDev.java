@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * desc:微信开发
  * author：mlsama
- * dataTime:2018/4/1422:56
+ * dataTime:2018/4/14 22:56
  */
 @Controller
 @Slf4j
@@ -32,6 +32,14 @@ public class WeiXinDev {
     @Autowired
     private MessageConvert messageConvert;
 
+    /**
+     * 接受到微信后台通过get传来的数据,连接微信后台
+     * @param signature
+     * @param timestamp
+     * @param nonce
+     * @param echostr
+     * @return
+     */
     @ResponseBody
     @GetMapping
     public String connectWX(String signature,String timestamp,String nonce,String echostr){
@@ -51,29 +59,22 @@ public class WeiXinDev {
         }
         return null;
     }
+
+    /**
+     * 接收微信后台通过post方式传过来的信息,并进行回复
+     * @param request
+     * @param response
+     * @throws Exception
+     */
     @PostMapping
     public void msgRecAndSend(HttpServletRequest request, HttpServletResponse response) throws Exception{
         //从request中获取用户发来的XML消息
         Map<String, String> map = MessageUtil.xml2Map(request);
-        /**
-         * 获取以下消息:
-         *  ToUserName	    开发者微信号
-         *  FromUserName	发送方帐号（一个OpenID）
-         *  CreateTime	    消息创建时间 （整型）
-         *  MsgType	        消息类型:text
-         *  Content	        文本消息内容
-         *  MsgId	        消息id，64位整型
-         */
-        String toUserName = map.get("ToUserName");
-        String fromUserName = map.get("FromUserName");
-        String msgType = map.get("MsgType");
-        String content = map.get("Content");
-        String msgId = map.get("MsgId");
-        log.info("用户发来的消息是:类型是:{},内容为:{}",msgType,content);
+        log.info("用户发来的消息是:类型是:{},内容为:{}",map.get("MsgType"),map.get("Content"));
         //判断是否是文本消息
-        if (Constant.MSGTYPE_TEXT.equals(msgType)){
+        if (Constant.MSGTYPE_TEXT.equals(map.get("MsgType"))){
             //返回消息给用户
-            TextMessage textMessage = messageConvert.getTextMessage(toUserName, fromUserName, msgId, content);
+            TextMessage textMessage = messageConvert.getTextMessage(map);
             //转为xml
             String send = MessageUtil.object2Xml(textMessage);
             log.info("返回的信息是:{}",send);
@@ -81,7 +82,7 @@ public class WeiXinDev {
             PrintWriter out = response.getWriter();
             out.write(send);
         }else {
-            log.error("接受的消息不是text类型的");
+
         }
     }
 

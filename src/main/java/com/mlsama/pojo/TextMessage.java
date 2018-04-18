@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * desc:文本消息对象
  * author：mlsama
@@ -13,11 +15,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-public class TextMessage extends Message {
+public class TextMessage extends Message implements Serializable {
     /**
      * @XStreamAlias
      *      指定这个属性在xml中的元素名称,XStream默认不会读取这个注解
-     *      需要使用processAnnotations(Class class)方法声名从那个类去读
+     *      需要使用processAnnotations(Class class)方法声名从哪个类去读
      */
     //文本消息内容
     @XStreamAlias("Content")

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * desc:消息实体类父类
  * author：mlsama
@@ -13,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-public class Message {
+public class Message implements Serializable {
 
     /**
      * @XStreamAlias
